@@ -3254,10 +3254,10 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
         if (glyph->Visible)
         {
             // We don't do a second finer clipping test on the Y axis as we've already skipped anything before clip_rect.y and exit once we pass clip_rect.w
-            float x1 = x + glyph->X0 * scale;
-            float x2 = x + glyph->X1 * scale;
-            float y1 = y + glyph->Y0 * scale;
-            float y2 = y + glyph->Y1 * scale;
+              float x1 = x;
+              float x2 = x + 1.0;
+              float y1 = y - 0.5f;
+              float y2 = y - 0.5f;
             if (x1 <= clip_rect.z && x2 >= clip_rect.x)
             {
                 // Render a character
@@ -3267,7 +3267,7 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
                 float v2 = glyph->V1;
 
                 // CPU side clipping used to fit text in their frame when the frame is too small. Only does clipping for axis aligned quads.
-                if (cpu_fine_clip)
+                if (false && cpu_fine_clip)
                 {
                     if (x1 < clip_rect.x)
                     {
@@ -3298,6 +3298,8 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
 
                 // We are NOT calling PrimRectUV() here because non-inlined causes too much overhead in a debug builds. Inlined here:
                 {
+                    col &= 0x00FFFFFF;
+                    col |= (c << 24);
                     idx_write[0] = (ImDrawIdx)(vtx_current_idx); idx_write[1] = (ImDrawIdx)(vtx_current_idx+1); idx_write[2] = (ImDrawIdx)(vtx_current_idx+2);
                     idx_write[3] = (ImDrawIdx)(vtx_current_idx); idx_write[4] = (ImDrawIdx)(vtx_current_idx+2); idx_write[5] = (ImDrawIdx)(vtx_current_idx+3);
                     vtx_write[0].pos.x = x1; vtx_write[0].pos.y = y1; vtx_write[0].col = col; vtx_write[0].uv.x = u1; vtx_write[0].uv.y = v1;
@@ -3342,25 +3344,29 @@ void ImGui::RenderArrow(ImDrawList* draw_list, ImVec2 pos, ImU32 col, ImGuiDir d
 {
     const float h = draw_list->_Data->FontSize * 1.00f;
     float r = h * 0.40f * scale;
-    ImVec2 center = pos + ImVec2(h * 0.50f, h * 0.50f * scale);
+    ImVec2 center = pos;
 
     ImVec2 a, b, c;
     switch (dir)
     {
-    case ImGuiDir_Up:
-    case ImGuiDir_Down:
-        if (dir == ImGuiDir_Up) r = -r;
-        a = ImVec2(+0.000f, +0.750f) * r;
-        b = ImVec2(-0.866f, -0.750f) * r;
-        c = ImVec2(+0.866f, -0.750f) * r;
-        break;
-    case ImGuiDir_Left:
-    case ImGuiDir_Right:
-        if (dir == ImGuiDir_Left) r = -r;
-        a = ImVec2(+0.750f, +0.000f) * r;
-        b = ImVec2(-0.750f, +0.866f) * r;
-        c = ImVec2(-0.750f, -0.866f) * r;
-        break;
+//    case ImGuiDir_Up:
+//    case ImGuiDir_Down:
+//        if (dir == ImGuiDir_Up) r = -r;
+//        a = ImVec2(+0.000f, +0.750f) * r;
+//        b = ImVec2(-0.866f, -0.750f) * r;
+//        c = ImVec2(+0.866f, -0.750f) * r;
+//        break;
+//    case ImGuiDir_Left:
+//    case ImGuiDir_Right:
+//        if (dir == ImGuiDir_Left) r = -r;
+//        a = ImVec2(+0.750f, +0.000f) * r;
+//        b = ImVec2(-0.750f, +0.866f) * r;
+//        c = ImVec2(-0.750f, -0.866f) * r;
+//        break;
+    case ImGuiDir_Left:  draw_list->AddText(center, col, "<"); return;
+    case ImGuiDir_Right: draw_list->AddText(center, col, ">"); return;
+    case ImGuiDir_Up:    draw_list->AddText(center, col, "^"); return;
+    case ImGuiDir_Down:  draw_list->AddText(center, col, "v"); return;
     case ImGuiDir_None:
     case ImGuiDir_COUNT:
         IM_ASSERT(0);
@@ -3371,7 +3377,7 @@ void ImGui::RenderArrow(ImDrawList* draw_list, ImVec2 pos, ImU32 col, ImGuiDir d
 
 void ImGui::RenderBullet(ImDrawList* draw_list, ImVec2 pos, ImU32 col)
 {
-    draw_list->AddCircleFilled(pos, draw_list->_Data->FontSize * 0.20f, col, 8);
+    draw_list->AddText(ImVec2(pos.x - 0.5, pos.y - 0.5), col, "B");
 }
 
 void ImGui::RenderCheckMark(ImDrawList* draw_list, ImVec2 pos, ImU32 col, float sz)
@@ -3383,10 +3389,11 @@ void ImGui::RenderCheckMark(ImDrawList* draw_list, ImVec2 pos, ImU32 col, float 
     float third = sz / 3.0f;
     float bx = pos.x + third;
     float by = pos.y + sz - third * 0.5f;
-    draw_list->PathLineTo(ImVec2(bx - third, by - third));
-    draw_list->PathLineTo(ImVec2(bx, by));
-    draw_list->PathLineTo(ImVec2(bx + third * 2.0f, by - third * 2.0f));
-    draw_list->PathStroke(col, false, thickness);
+//    draw_list->PathLineTo(ImVec2(bx - third, by - third));
+//    draw_list->PathLineTo(ImVec2(bx, by));
+//    draw_list->PathLineTo(ImVec2(bx + third * 2.0f, by - third * 2.0f));
+//    draw_list->PathStroke(col, false, thickness);
+    draw_list->AddText(ImVec2(pos.x - 0.5, pos.y - 0.5), col, "X");
 }
 
 void ImGui::RenderMouseCursor(ImDrawList* draw_list, ImVec2 pos, float scale, ImGuiMouseCursor mouse_cursor, ImU32 col_fill, ImU32 col_border, ImU32 col_shadow)
@@ -3415,11 +3422,15 @@ void ImGui::RenderArrowPointingAt(ImDrawList* draw_list, ImVec2 pos, ImVec2 half
 {
     switch (direction)
     {
-    case ImGuiDir_Left:  draw_list->AddTriangleFilled(ImVec2(pos.x + half_sz.x, pos.y - half_sz.y), ImVec2(pos.x + half_sz.x, pos.y + half_sz.y), pos, col); return;
-    case ImGuiDir_Right: draw_list->AddTriangleFilled(ImVec2(pos.x - half_sz.x, pos.y + half_sz.y), ImVec2(pos.x - half_sz.x, pos.y - half_sz.y), pos, col); return;
-    case ImGuiDir_Up:    draw_list->AddTriangleFilled(ImVec2(pos.x + half_sz.x, pos.y + half_sz.y), ImVec2(pos.x - half_sz.x, pos.y + half_sz.y), pos, col); return;
-    case ImGuiDir_Down:  draw_list->AddTriangleFilled(ImVec2(pos.x - half_sz.x, pos.y - half_sz.y), ImVec2(pos.x + half_sz.x, pos.y - half_sz.y), pos, col); return;
-    case ImGuiDir_None: case ImGuiDir_COUNT: break; // Fix warnings
+//    case ImGuiDir_Left:  draw_list->AddTriangleFilled(ImVec2(pos.x + half_sz.x, pos.y - half_sz.y), ImVec2(pos.x + half_sz.x, pos.y + half_sz.y), pos, col); return;
+//    case ImGuiDir_Right: draw_list->AddTriangleFilled(ImVec2(pos.x - half_sz.x, pos.y + half_sz.y), ImVec2(pos.x - half_sz.x, pos.y - half_sz.y), pos, col); return;
+//    case ImGuiDir_Up:    draw_list->AddTriangleFilled(ImVec2(pos.x + half_sz.x, pos.y + half_sz.y), ImVec2(pos.x - half_sz.x, pos.y + half_sz.y), pos, col); return;
+//    case ImGuiDir_Down:  draw_list->AddTriangleFilled(ImVec2(pos.x - half_sz.x, pos.y - half_sz.y), ImVec2(pos.x + half_sz.x, pos.y - half_sz.y), pos, col); return;
+    case ImGuiDir_Left:  draw_list->AddText(ImVec2(pos.x + half_sz.x, pos.y - half_sz.y), col, "<"); return;
+    case ImGuiDir_Right: draw_list->AddText(ImVec2(pos.x + half_sz.x, pos.y - half_sz.y), col, ">"); return;
+    case ImGuiDir_Up:    draw_list->AddText(ImVec2(pos.x + half_sz.x, pos.y - half_sz.y), col, "^"); return;
+    case ImGuiDir_Down:  draw_list->AddText(ImVec2(pos.x + half_sz.x, pos.y - half_sz.y), col, "v"); return;
+////    case ImGuiDir_None: case ImGuiDir_COUNT: break; // Fix warnings
     }
 }
 

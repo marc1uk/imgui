@@ -2236,7 +2236,7 @@ static void ShowDemoWindowLayout()
             if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
             {
                 for (int n = 0; n < IM_ARRAYSIZE(opened); n++)
-                    if (opened[n] && ImGui::BeginTabItem(names[n], &opened[n], ImGuiTabItemFlags_None))
+                    if (opened[n] && ImGui::BeginTabItem(names[n], &opened[n]))
                     {
                         ImGui::Text("This is the %s tab!", names[n]);
                         if (n & 1)
