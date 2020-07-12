@@ -106,3 +106,11 @@ namespace ImGui
     void MyFunction(const char* name, const MyMatrix44& v);
 }
 */
+
+//Imgui string extension
+#define IMGUI_STD_EXT
+
+#ifdef IMGUI_STD_EXT
+#include <string>
+#include <vector>
+#endif // IMGUI_STD_EXT

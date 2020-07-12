@@ -11,7 +11,7 @@
 #   pacman -S mingw-w64-i686-SDL2
 #
 
-#CXX = g++
+CXX = g++ -std=c++11
 #CXX = clang++
 
 EXE = example_sdl_opengl2
