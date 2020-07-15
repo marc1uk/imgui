@@ -1,0 +1,39 @@
+CPPFLAGS= -Wno-reorder -Wno-sign-compare -Wno-unused-variable -Wno-unused-but-set-variable -Wl,--no-as-needed
+CPPFLAGS+= -std=c++11 -Wall -Wextra -pedantic
+
+PKGS    := ncursesw
+NCCFLAGS  := $(shell pkg-config --cflags $(PKGS))
+NCLDFLAGS := $(shell pkg-config --libs $(PKGS))
+
+ImGuiPath=../../..
+ImGuiSrcs= $(ImGuiPath)/examples/imgui_impl_sdl.cpp $(ImGuiPath)/examples/imgui_impl_opengl2.cpp $(ImGuiPath)/examples/example_imtui/imtui-impl-text.cpp $(ImGuiPath)/examples/example_imtui/imtui-impl-ncurses.cpp $(ImGuiPath)/imgui.cpp $(ImGuiPath)/imgui_demo.cpp $(ImGuiPath)/imgui_draw.cpp $(ImGuiPath)/imgui_widgets.cpp
+ImGuiInclude= -I$(ImGuiPath)/ -I$(ImGuiPath)/examples/ -I$(ImGuiPath)/examples/example_imtui/include/
+ImGuiLib= -lGL -ldl `sdl2-config --libs` -lncurses -ltinfo
+
+ImGuiInclude+= $(NCCFLAGS)
+ImGuiLib+= $(NCLDFLAGS)
+
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S), Linux) #LINUX
+	ImGuiLib += -lGL -ldl `sdl2-config --libs`
+	ImGuiInclude += `sdl2-config --cflags`
+endif
+ifeq ($(UNAME_S), Darwin) #APPLE
+	ImGuiLib += -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo `sdl2-config --libs`
+	ImGuiLib += -L/usr/local/lib -L/opt/local/lib
+	ImGuiInclude += `sdl2-config --cflags`
+	ImGuiInclude += -I/usr/local/include -I/opt/local/include
+endif
+ifeq ($(findstring MINGW,$(UNAME_S)),MINGW)
+	ImGuiLib += -lgdi32 -lopengl32 -limm32 `pkg-config --static --libs sdl2`
+	ImGuiInclude += `pkg-config --cflags sdl2`
+endif
+
+all: imtui-example-ncurses0
+
+imtui-example-ncurses0: ../ncurses0/main.cpp  $(ImGuiSrcs)
+	@echo Compiling imtui-example-ncurses0...
+	@g++ $(CPPFLAGS) $^ -I./ $(ImGuiInclude) $(ImGuiLib) -o $@
+
+clean :
+	@rm -f imtui-example-ncurses0

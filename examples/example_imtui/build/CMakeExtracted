@@ -1,0 +1,42 @@
+imgui_draw.cpp.o:
+	g++ -Ithird-party/imgui/imgui  -std=gnu++14 -o ../..imgui/imgui_draw.cpp.o -c third-party/imgui/imgui/imgui_draw.cpp
+
+imgui.cpp.o:
+	g++ -Ithird-party/imgui/imgui  -std=gnu++14 -o ../..imgui/imgui.cpp.o -c third-party/imgui/imgui/imgui.cpp
+
+imgui_demo.cpp.o:
+	g++ -Ithird-party/imgui/imgui  -std=gnu++14 -o ../..imgui/imgui_demo.cpp.o -c third-party/imgui/imgui/imgui_demo.cpp
+
+imgui_widgets.cpp.o:
+	g++ -Ithird-party/imgui/imgui  -std=gnu++14 -o ../..imgui/imgui_widgets.cpp.o -c third-party/imgui/imgui/imgui_widgets.cpp
+
+libimgui.a:
+	ar qc libimgui.a  ../../imgui/imgui.cpp.o ../../imgui/imgui_draw.cpp.o ../../imgui/imgui_demo.cpp.o ../../imgui/imgui_widgets.cpp.o
+	ranlib libimgui.a
+
+imtui-impl-text.cpp.o:
+	g++ -Isrc/../include -Ithird-party/imgui  -Wall -Wextra -pedantic -std=gnu++14 -o imtui-impl-text.cpp.o -c src/imtui-impl-text.cpp
+
+libimtui-core.a:
+	ar qc libimtui-core.a  imtui-impl-text.cpp.o
+	ranlib libimtui-core.a
+
+imtui-demo.cpp.o:
+	g++ -Isrc/../include -Ithird-party/imgui  -Wall -Wextra -pedantic -std=gnu++14 -o imtui-demo.cpp.o -c examples/imtui-demo.cpp
+
+imtui-impl-ncurses.cpp.o:
+	g++ -Isrc/../include -Ithird-party/imgui  -Wall -Wextra -pedantic -std=gnu++14 -o imtui-impl-ncurses.cpp.o -c src/imtui-impl-ncurses.cpp
+
+libimtui-ncurses.a:
+	ar qc libimtui-ncurses.a  imtui-impl-ncurses.cpp.o:
+	ranlib libimtui-ncurses.a
+
+libimtui-examples-common.a:
+	ar qc libimtui-examples-common.a:
+	ranlib libimtui-examples-common.a
+
+main.cpp.o:
+	g++ -Iexamples/ncurses0/.. -Isrc/../include -Ithird-party/imgui  -Wall -Wextra -pedantic -std=gnu++14 -o main.cpp.o -c examples/ncurses0/main.cpp
+
+imtui-example-ncurses0:
+	g++ -Wall -Wextra -pedantic main.cpp.o -o bin/imtui-example-ncurses0 libimtui-ncurses.a libimtui-examples-common.a -lcurses -lform libimtui-core.a libimgui.a -ldl 

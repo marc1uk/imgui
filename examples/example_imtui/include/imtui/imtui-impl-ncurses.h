@@ -25,3 +25,5 @@ bool ImTui_ImplNcurses_NewFrame();
 void ImTui_ImplNcurses_DrawScreen(bool active = true);
 
 bool ImTui_ImplNcurses_ProcessEvent();
+
+void ImTui_ImplNcurses_ReInit();

@@ -140,6 +140,10 @@ ImTui::TScreen * ImTui_ImplNcurses_Init(bool mouseSupport, float fps_active, flo
     return g_screen;
 }
 
+void ImTui_ImplNcurses_ReInit(){
+    redrawwin(stdscr);  // tell ncurses the screen is corrupted and to refresh every line
+}
+
 void ImTui_ImplNcurses_Shutdown() {
     // ref #11 : https://github.com/ggerganov/imtui/issues/11
     printf("\033[?1003l\n"); // Disable mouse movement events, as l = low

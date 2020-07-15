@@ -13,10 +13,11 @@ int main() {
     ImTui_ImplText_Init();
 
     bool demo = true;
+    bool done_looking = false;
     int nframes = 0;
     float fval = 1.23f;
 
-    while (true) {
+    while (!done_looking) {
         ImTui_ImplNcurses_NewFrame();
         ImTui_ImplText_NewFrame();
 
@@ -25,6 +26,7 @@ int main() {
         ImGui::SetNextWindowPos(ImVec2(4, 2), ImGuiCond_Once);
         ImGui::SetNextWindowSize(ImVec2(50.0, 10.0), ImGuiCond_Once);
         ImGui::Begin("Hello, world!");
+        ImGui::Checkbox("Done Looking", &done_looking);
         ImGui::Text("NFrames = %d", nframes++);
         ImGui::Text("Mouse Pos : x = %g, y = %g", ImGui::GetIO().MousePos.x, ImGui::GetIO().MousePos.y);
         ImGui::Text("Time per frame %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
