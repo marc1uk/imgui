@@ -140,8 +140,40 @@ ImTui::TScreen * ImTui_ImplNcurses_Init(bool mouseSupport, float fps_active, flo
     return g_screen;
 }
 
-void ImTui_ImplNcurses_ReInit(){
-    redrawwin(stdscr);  // tell ncurses the screen is corrupted and to refresh every line
+void ImTui_ImplNcurses_Suspend(){
+    // two ways to clear the internal screen buffer
+    //clear();            // ncurses should write the screen from scratch on next draw()
+    //werase(stdscr);     // build new screen buffer from empty, but retain old state for optimising draw() call
+    // Both only affect ncurses' internal buffer.
+    //wrefresh(stdscr);   // update the *actual* terminal display
+    /* either of the above (clear/werase) followed by refresh would clear the screen,
+       but subsequent tool's behaviours would be affected (lines would spread across the screen
+       instead of being neatly stacked, like newline was newline plus four tabs now, or something).
+       better (proper) way is below:
+    */
+    
+    // save the current state and restore normal tty functionality
+    def_prog_mode();
+    // suspend ncurses control
+    endwin();
+}
+
+void ImTui_ImplNcurses_Restore(){
+    // manual attempt to restore screen after clear. These would not fully clear the screen,
+    // so some text from previous tools would still be shown... redundant now as the proper way works.
+    //redrawwin(stdscr);  // tell ncurses the screen is corrupted and to refresh every line on next draw() call
+    //wrefresh(stdscr);   // update the terminal display
+    
+    // restore ncurses control and previous state
+    reset_prog_mode();
+    // update the display
+    refresh();
+    
+    // for some reason click and drag stops working after the suspend...
+    keypad(stdscr, true);
+    mouseinterval(0);
+    mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
+    printf("\033[?1003h\n");
 }
 
 void ImTui_ImplNcurses_Shutdown() {
